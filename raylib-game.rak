@@ -6,23 +6,25 @@
 
 (define raylibPath "./libraylib")
 
-; gets a library handle to the... library... because... its a handle... to the library
+; gets a library handle to the... library... because... it needs a handle... to the library
+; this is how the functions and methods inside raylib are accessed and used
 (define raylib (ffi-lib raylibPath))
 
 ; this defines the functions and makes them available to me to mess about with
 (define RLInitWindow (get-ffi-obj "InitWindow" raylib (_fun _int _int _string -> _void)))
 (define RLWindowShouldClose (get-ffi-obj "WindowShouldClose" raylib (_fun -> _bool)))
 (define RLCloseWindow (get-ffi-obj "CloseWindow" raylib (_fun -> _void)))
-(define RLBeginDrawing (get-ffi-obj "BeginDrawing" raylib (_fun -> _void)))
-(define RLEndDrawing (get-ffi-obj "EndDrawing" raylib (_fun -> _void)))	       
+(define RLBeginDrawing (get-ffi-obj "BeginDrawing" raylib (_fun -> _void))) ; are required otherwise the internal buffers cause issues and the window doesnt close
+(define RLEndDrawing (get-ffi-obj "EndDrawing" raylib (_fun -> _void)))
 
 ; this is the omega combinator which is the most basic case of recursion
 ; this will be used in a closure because i can (i dont understand y combinators)
+; the omega combinator is defined as \x.x x
 (define (omega func) (func func))
 
 (RLInitWindow 800 600 "hello from racket")
 (define (gameloop gl) (if (not (RLWindowShouldClose)) (begin (RLBeginDrawing)
-						             (RLEndDrawing)
-                                                       	     (gameloop gl))
-						      (RLCloseWindow)))
+                                                             (RLEndDrawing)
+                                                             (gameloop gl))
+                                                      (RLCloseWindow)))
 (omega gameloop)
