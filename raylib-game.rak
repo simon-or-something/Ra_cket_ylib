@@ -1,0 +1,28 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-advanced-reader.ss" "lang")((modname raylib-game) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #f)))
+; #lang racket
+(require ffi/unsafe)
+
+(define raylibPath "./libraylib")
+
+; gets a library handle to the... library... because... its a handle... to the library
+(define raylib (ffi-lib raylibPath))
+
+; this defines the functions and makes them available to me to mess about with
+(define RLInitWindow (get-ffi-obj "InitWindow" raylib (_fun _int _int _string -> _void)))
+(define RLWindowShouldClose (get-ffi-obj "WindowShouldClose" raylib (_fun -> _bool)))
+(define RLCloseWindow (get-ffi-obj "CloseWindow" raylib (_fun -> _void)))
+(define RLBeginDrawing (get-ffi-obj "BeginDrawing" raylib (_fun -> _void)))
+(define RLEndDrawing (get-ffi-obj "EndDrawing" raylib (_fun -> _void)))	       
+
+; this is the omega combinator which is the most basic case of recursion
+; this will be used in a closure because i can (i dont understand y combinators)
+(define (omega func) (func func))
+
+(RLInitWindow 800 600 "hello from racket")
+(define (gameloop gl) (if (not (RLWindowShouldClose)) (begin (RLBeginDrawing)
+						             (RLEndDrawing)
+                                                       	     (gameloop gl))
+						      (RLCloseWindow)))
+(omega gameloop)
